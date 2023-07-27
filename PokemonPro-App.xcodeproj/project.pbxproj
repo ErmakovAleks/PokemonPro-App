@@ -15,6 +15,7 @@
 		D94990172A724FEF00B7B574 /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = D94990162A724FEF00B7B574 /* HTTPMethod.swift */; };
 		D94990192A7251E900B7B574 /* RequestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D94990182A7251E900B7B574 /* RequestError.swift */; };
 		D949901B2A72522A00B7B574 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D949901A2A72522A00B7B574 /* NetworkService.swift */; };
+		D949901F2A72811100B7B574 /* PaytoneOne-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D949901C2A727D2800B7B574 /* PaytoneOne-Regular.ttf */; };
 		D99464592A681E5400503BB7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99464582A681E5400503BB7 /* AppDelegate.swift */; };
 		D994645D2A681E5400503BB7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D994645C2A681E5400503BB7 /* ViewController.swift */; };
 		D99464622A681E5600503BB7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D99464612A681E5600503BB7 /* Assets.xcassets */; };
@@ -33,6 +34,7 @@
 		D94990162A724FEF00B7B574 /* HTTPMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
 		D94990182A7251E900B7B574 /* RequestError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestError.swift; sourceTree = "<group>"; };
 		D949901A2A72522A00B7B574 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		D949901C2A727D2800B7B574 /* PaytoneOne-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PaytoneOne-Regular.ttf"; sourceTree = "<group>"; };
 		D99464552A681E5400503BB7 /* PokemonPro-App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PokemonPro-App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D99464582A681E5400503BB7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D994645C2A681E5400503BB7 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 			children = (
 				D99464612A681E5600503BB7 /* Assets.xcassets */,
 				D99464632A681E5600503BB7 /* LaunchScreen.storyboard */,
+				D949901C2A727D2800B7B574 /* PaytoneOne-Regular.ttf */,
 				D99464662A681E5600503BB7 /* Info.plist */,
 			);
 			path = SupportingFiles;
@@ -233,6 +236,7 @@
 			files = (
 				D99464652A681E5600503BB7 /* LaunchScreen.storyboard in Resources */,
 				D99464622A681E5600503BB7 /* Assets.xcassets in Resources */,
+				D949901F2A72811100B7B574 /* PaytoneOne-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
