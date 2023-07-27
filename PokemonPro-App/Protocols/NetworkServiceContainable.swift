@@ -7,3 +7,13 @@
 	
 
 import Foundation
+
+protocol NetworkServiceContainable {
+
+    associatedtype Service: NetworkSessionProcessable
+}
+
+extension NetworkServiceContainable {
+
+    typealias Service = NetworkService
+}

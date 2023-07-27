@@ -6,4 +6,22 @@
 //  Copyright © 2023 IDAP. All rights reserved.
 	
 
-import Foundation
+import UIKit
+
+public class BaseCoordinator: UINavigationController {
+    
+    // MARK: -
+    // MARK: View Life Cycle
+    
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.setNavigationBarHidden(true, animated: false)
+        self.start()
+    }
+    
+    // MARK: -
+    // MARK: Overriding
+    
+    func start() {}
+}
