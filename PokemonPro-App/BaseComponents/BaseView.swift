@@ -44,6 +44,10 @@ where ViewModelType: BaseViewModel<OutputEventsType>, OutputEventsType: Events
     open override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.setup()
+        self.style()
+        self.layout()
+        
         self.prepareBindings(disposeBag: self.disposeBag)
         self.prepare(with: self.viewModel)
         self.viewModel.viewDidLoaded()
@@ -51,6 +55,18 @@ where ViewModelType: BaseViewModel<OutputEventsType>, OutputEventsType: Events
     
     //MARK: -
     //MARK: Overrding methods
+    
+    func setup() {
+        
+    }
+    
+    func style() {
+        
+    }
+    
+    func layout() {
+        
+    }
     
     func prepareBindings(disposeBag: DisposeBag) {
         

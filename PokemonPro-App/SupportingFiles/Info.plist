@@ -5,6 +5,8 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>PaytoneOne-Regular</string>
+		<string>PlusJakartaSans-Italic-VariableFont_wght</string>
+		<string>PlusJakartaSans-VariableFont_wght</string>
 	</array>
 </dict>
 </plist>

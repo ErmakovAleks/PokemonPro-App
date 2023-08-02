@@ -8,7 +8,14 @@
 
 import UIKit
 
+import RxSwift
+
 public class BaseCoordinator: UINavigationController {
+    
+    // MARK: -
+    // MARK: Variables
+    
+    let disposeBag = DisposeBag()
     
     // MARK: -
     // MARK: View Life Cycle
