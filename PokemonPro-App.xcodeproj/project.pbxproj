@@ -275,8 +275,8 @@
 		D9F17DC42A7A3E890015099D /* DashboardView */ = {
 			isa = PBXGroup;
 			children = (
-				D9F17DC52A7A3EA80015099D /* DashboardViewModel.swift */,
 				D9F17DC72A7A3F610015099D /* DashboardView.swift */,
+				D9F17DC52A7A3EA80015099D /* DashboardViewModel.swift */,
 			);
 			path = DashboardView;
 			sourceTree = "<group>";

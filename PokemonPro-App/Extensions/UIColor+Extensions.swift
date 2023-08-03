@@ -14,6 +14,10 @@ extension UIColor {
         UIColor(red: 255/255, green: 215/255, blue: 7/255, alpha: 1.0)
     }
     
+    static func darkGold() -> UIColor {
+        UIColor(red: 235/255, green: 185/255, blue: 7/255, alpha: 1.0)
+    }
+    
     static func wildSand() -> UIColor {
         UIColor(red: 245/255, green: 245/255, blue: 245/255, alpha: 1.0)
     }

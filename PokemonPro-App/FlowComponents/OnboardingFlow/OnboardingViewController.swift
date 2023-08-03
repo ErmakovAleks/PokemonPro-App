@@ -15,10 +15,11 @@ class OnboardingViewController: UIPageViewController {
     // MARK: -
     // MARK: Variables
     
-    var nextHandler: (() -> ())?
+    internal var nextHandler: (() -> ())?
     
     private let pages: [UIViewController]
     private let pageControl = UIPageControl()
+    private let stackView = UIStackView()
     private let initialPage = 0
     
     // MARK: -
@@ -42,6 +43,7 @@ class OnboardingViewController: UIPageViewController {
         
         self.prepare()
         self.preparePageControl()
+        self.prepareStackView()
     }
     
     // MARK: -
@@ -50,6 +52,7 @@ class OnboardingViewController: UIPageViewController {
     private func prepare() {
         self.delegate = self
         self.dataSource = self
+        self.stackView.distribution = .fillEqually
         
         self.nextHandler = {
             guard let current = self.viewControllers?.first else { return }
@@ -81,6 +84,48 @@ class OnboardingViewController: UIPageViewController {
             $0.centerX.equalToSuperview()
             $0.height.equalTo(29.0)
             $0.bottom.equalToSuperview().inset(34.0)
+        }
+    }
+    
+    private func prepareStackView() {
+        self.stackView.axis = .horizontal
+        let pageControlButtons = self.pages.map { _ in
+            let button = UIButton()
+            button.addTarget(
+                self,
+                action: #selector(self.handleSpecificPage),
+                for: .touchUpInside
+            )
+            
+            self.stackView.addArrangedSubview(button)
+            
+            return button
+        }
+        
+        self.view.addSubview(self.stackView)
+        
+        self.stackView.snp.makeConstraints {
+            $0.verticalEdges.equalTo(self.pageControl.snp.verticalEdges)
+            $0.width.equalTo(self.pageControl.snp.width).multipliedBy(0.5)
+            $0.centerX.equalToSuperview()
+        }
+    }
+    
+    @objc func handleSpecificPage(_ sender: UIButton) {
+        self.stackView.arrangedSubviews.enumerated().forEach { index, button in
+            if sender === button && index != self.pageControl.currentPage {
+                let direction: UIPageViewController.NavigationDirection
+                
+                if index > self.pageControl.currentPage {
+                    direction = .reverse
+                } else {
+                    direction = .forward
+                }
+                
+                self.setViewControllers([self.pages[index]], direction: direction, animated: true) { _ in
+                    self.pageControl.currentPage = index
+                }
+            }
         }
     }
 }

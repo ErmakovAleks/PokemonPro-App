@@ -19,7 +19,7 @@ final class ThirdPageView: BaseView<ThirdPageViewModel, ThirdPageOutputEvents> {
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
     private let skipButton = UIButton()
-    private let nextButton = UIButton()
+    private let goButton = UIButton()
     
     // MARK: -
     // MARK: Overrided functions
@@ -31,8 +31,8 @@ final class ThirdPageView: BaseView<ThirdPageViewModel, ThirdPageOutputEvents> {
         self.view.addSubview(self.descriptionLabel)
         self.view.addSubview(self.skipButton)
         self.skipButton.addTarget(self, action: #selector(self.handleSkip), for: .touchUpInside)
-        self.view.addSubview(self.nextButton)
-        self.nextButton.addTarget(self, action: #selector(self.handleNext), for: .touchUpInside)
+        self.view.addSubview(self.goButton)
+        self.goButton.addTarget(self, action: #selector(self.handleNext), for: .touchUpInside)
     }
     
     override func style() {
@@ -43,7 +43,7 @@ final class ThirdPageView: BaseView<ThirdPageViewModel, ThirdPageOutputEvents> {
         self.titleLabelStyle()
         self.descriptionLabelStyle()
         self.skipButtonStyle()
-        self.nextButtonStyle()
+        self.goButtonStyle()
     }
     
     override func layout() {
@@ -52,7 +52,7 @@ final class ThirdPageView: BaseView<ThirdPageViewModel, ThirdPageOutputEvents> {
         self.titleLabelLayout()
         self.descriptionLabelLayout()
         self.skipButtonLayout()
-        self.nextButtonLayout()
+        self.goButtonLayout()
     }
     
     // MARK: -
@@ -91,10 +91,13 @@ extension ThirdPageView {
         self.skipButton.titleLabel?.font = UIFont.plusJacartaSans(size: 15.0)
     }
     
-    private func nextButtonStyle() {
-        self.nextButton.setTitle("Next", for: .normal)
-        self.nextButton.setTitleColor(UIColor.gold(), for: .normal)
-        self.nextButton.titleLabel?.font = UIFont.plusJacartaSans(size: 15.0)
+    private func goButtonStyle() {
+        self.goButton.setTitle("GO!", for: .normal)
+        self.goButton.setTitleColor(UIColor.black, for: .normal)
+        self.goButton.titleLabel?.font = UIFont.plusJacartaSans(size: 20.0)
+        self.goButton.backgroundColor = UIColor.gold()
+        self.goButton.layer.cornerRadius = 32.5
+        self.addShadowToGoButton()
     }
     
     private func backgroundImageViewLayout() {
@@ -134,10 +137,19 @@ extension ThirdPageView {
         }
     }
     
-    private func nextButtonLayout() {
-        self.nextButton.snp.makeConstraints {
-            $0.bottom.equalToSuperview().inset(34.0)
-            $0.trailing.equalToSuperview().inset(24.0)
+    private func goButtonLayout() {
+        self.goButton.snp.makeConstraints {
+            $0.top.equalTo(self.descriptionLabel.snp.bottom).offset(24.0)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(65.0)
+            $0.width.equalTo(200.0)
         }
+    }
+    
+    private func addShadowToGoButton() {
+        self.goButton.layer.shadowColor = UIColor.darkGold().cgColor
+        self.goButton.layer.shadowOffset = CGSize(width: 0.0, height: 8.0)
+        self.goButton.layer.shadowOpacity = 0.3
+        self.goButton.layer.shadowRadius = 3.0
     }
 }
