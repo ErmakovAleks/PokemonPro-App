@@ -22,7 +22,7 @@ extension UIFont {
     }
     
     static func plusJacartaSans(size: CGFloat) -> UIFont {
-        UIFont(name: AppFonts.plusJacartaSans.rawValue, size: size) ?? UIFont.systemFont(ofSize: size)
+        UIFont(name: AppFonts.plusJacartaSans.rawValue, size: size) ?? UIFont.boldSystemFont(ofSize: size)
     }
     
     static func plusJacartaSansItalic(size: CGFloat) -> UIFont {

@@ -36,7 +36,7 @@ final class FirstPageView: BaseView<FirstPageViewModel, FirstPageOutputEvents> {
     }
     
     override func style() {
-        self.view.backgroundColor = UIColor.wildSand()
+        self.view.backgroundColor = .wildSand
         
         self.backgroundImageView.image = UIImage(named: "bg")
         self.pokemonImageView.image = UIImage(named: "largeSilhouette")
@@ -87,13 +87,13 @@ extension FirstPageView {
     
     private func skipButtonStyle() {
         self.skipButton.setTitle("Skip", for: .normal)
-        self.skipButton.setTitleColor(UIColor.gold(), for: .normal)
+        self.skipButton.setTitleColor(.gold, for: .normal)
         self.skipButton.titleLabel?.font = UIFont.plusJacartaSans(size: 15.0)
     }
     
     private func nextButtonStyle() {
         self.nextButton.setTitle("Next", for: .normal)
-        self.nextButton.setTitleColor(UIColor.gold(), for: .normal)
+        self.nextButton.setTitleColor(.gold, for: .normal)
         self.nextButton.titleLabel?.font = UIFont.plusJacartaSans(size: 15.0)
     }
     

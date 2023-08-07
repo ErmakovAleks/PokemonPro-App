@@ -93,7 +93,7 @@ final class MainCoordinator: BaseCoordinator {
         case .skip:
             self.skipToDashboard()
         case .next:
-            self.handleNext()
+            self.skipToDashboard()
         }
     }
     
@@ -113,6 +113,6 @@ final class MainCoordinator: BaseCoordinator {
     
     private func skipToDashboard() {
         let dashboardView = self.dashboardView()
-        self.pushViewController(dashboardView, animated: true)
+        self.setViewControllers([dashboardView], animated: true)
     }
 }

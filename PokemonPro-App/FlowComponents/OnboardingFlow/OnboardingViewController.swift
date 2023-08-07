@@ -75,8 +75,8 @@ class OnboardingViewController: UIPageViewController {
         self.pageControl.currentPage = self.initialPage
         self.pageControl.preferredCurrentPageIndicatorImage = UIImage(named: "currentIndicator")
         self.pageControl.preferredIndicatorImage = UIImage(named: "prefferedIndicator")
-        self.pageControl.pageIndicatorTintColor = UIColor.abbey()
-        self.pageControl.currentPageIndicatorTintColor = UIColor.abbey()
+        self.pageControl.pageIndicatorTintColor = .abbey
+        self.pageControl.currentPageIndicatorTintColor = .abbey
         
         self.view.addSubview(self.pageControl)
         

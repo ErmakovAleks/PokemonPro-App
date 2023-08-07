@@ -36,7 +36,7 @@ final class ThirdPageView: BaseView<ThirdPageViewModel, ThirdPageOutputEvents> {
     }
     
     override func style() {
-        self.view.backgroundColor = UIColor.wildSand()
+        self.view.backgroundColor = .wildSand
         
         self.backgroundImageView.image = UIImage(named: "bg")
         self.pokemonImageView.image = UIImage(named: "largePokemons")
@@ -87,15 +87,15 @@ extension ThirdPageView {
     
     private func skipButtonStyle() {
         self.skipButton.setTitle("Skip", for: .normal)
-        self.skipButton.setTitleColor(UIColor.gold(), for: .normal)
+        self.skipButton.setTitleColor(.gold, for: .normal)
         self.skipButton.titleLabel?.font = UIFont.plusJacartaSans(size: 15.0)
     }
     
     private func goButtonStyle() {
         self.goButton.setTitle("GO!", for: .normal)
-        self.goButton.setTitleColor(UIColor.black, for: .normal)
+        self.goButton.setTitleColor(.black, for: .normal)
         self.goButton.titleLabel?.font = UIFont.plusJacartaSans(size: 20.0)
-        self.goButton.backgroundColor = UIColor.gold()
+        self.goButton.backgroundColor = .gold
         self.goButton.layer.cornerRadius = 32.5
         self.addShadowToGoButton()
     }
@@ -147,7 +147,7 @@ extension ThirdPageView {
     }
     
     private func addShadowToGoButton() {
-        self.goButton.layer.shadowColor = UIColor.darkGold().cgColor
+        self.goButton.layer.shadowColor = UIColor.darkGold.cgColor
         self.goButton.layer.shadowOffset = CGSize(width: 0.0, height: 8.0)
         self.goButton.layer.shadowOpacity = 0.3
         self.goButton.layer.shadowRadius = 3.0

@@ -37,6 +37,7 @@
 		D9F17DC22A7A2ED50015099D /* ThirdPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F17DC12A7A2ED50015099D /* ThirdPageViewModel.swift */; };
 		D9F17DC62A7A3EA80015099D /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F17DC52A7A3EA80015099D /* DashboardViewModel.swift */; };
 		D9F17DC82A7A3F610015099D /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F17DC72A7A3F610015099D /* DashboardView.swift */; };
+		D9F17DCA2A7FF1C60015099D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F17DC92A7FF1C60015099D /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +73,7 @@
 		D9F17DC12A7A2ED50015099D /* ThirdPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThirdPageViewModel.swift; sourceTree = "<group>"; };
 		D9F17DC52A7A3EA80015099D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		D9F17DC72A7A3F610015099D /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		D9F17DC92A7FF1C60015099D /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		EE7894859CDD75BFA2E47468 /* Pods-PokemonPro-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PokemonPro-App.debug.xcconfig"; path = "Target Support Files/Pods-PokemonPro-App/Pods-PokemonPro-App.debug.xcconfig"; sourceTree = "<group>"; };
 		F5B29BB30AEA75896ACD5DB3 /* Pods_PokemonPro_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PokemonPro_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -204,6 +206,7 @@
 			children = (
 				D9F17DA72A73D4CF0015099D /* OnboardingFlow */,
 				D9F17DC32A7A3E3A0015099D /* DashboardFlow */,
+				D9F17DC92A7FF1C60015099D /* Constants.swift */,
 			);
 			path = FlowComponents;
 			sourceTree = "<group>";
@@ -398,6 +401,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9F17DCA2A7FF1C60015099D /* Constants.swift in Sources */,
 				D949900E2A715B3600B7B574 /* NetworkServiceContainable.swift in Sources */,
 				D9F17DC82A7A3F610015099D /* DashboardView.swift in Sources */,
 				D9F17DAA2A73E8720015099D /* UIImage+Extensions.swift in Sources */,
