@@ -74,11 +74,26 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
             image: UIImage(named: "collectionRepresentIcon"),
             style: .plain,
             target: self,
-            action: #selector(self.leftAction)
+            action: #selector(self.rightAction)
         )
         
         self.navigationItem.leftBarButtonItem = leftItem
         self.navigationItem.rightBarButtonItem = rightItem
+    }
+    
+    @objc private func leftAction() {
+        self.viewModel.handleAbout()
+    }
+    
+    @objc private func rightAction() {
+        self.switchCollectionLayout()
+    }
+    
+    // MARK: -
+    // MARK: Collection Layout
+    
+    private func switchCollectionLayout() {
+        
     }
     
     // MARK: -
@@ -205,10 +220,6 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
             
             self.view.layoutIfNeeded()
         }
-    }
-    
-    @objc private func leftAction() {
-        
     }
 }
 

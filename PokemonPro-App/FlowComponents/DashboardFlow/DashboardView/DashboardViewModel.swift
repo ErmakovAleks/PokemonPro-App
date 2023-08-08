@@ -10,8 +10,15 @@ import Foundation
 
 enum DashboardOutputEvents: Events {
     
+    case about
 }
 
 final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
     
+    // MARK: -
+    // MARK: Internal functions
+    
+    func handleAbout() {
+        self.outputEventsEmiter.accept(.about)
+    }
 }

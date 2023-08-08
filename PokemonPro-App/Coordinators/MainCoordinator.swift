@@ -108,11 +108,49 @@ final class MainCoordinator: BaseCoordinator {
         let viewModel = DashboardViewModel()
         let view = DashboardView(viewModel: viewModel)
         
+        viewModel.events.bind { [weak self] in
+            self?.handle(events: $0)
+        }
+        .disposed(by: self.disposeBag)
+        
         return view
+    }
+    
+    private func handle(events: DashboardOutputEvents) {
+        switch events {
+        case .about:
+            self.handleAbout()
+        }
     }
     
     private func skipToDashboard() {
         let dashboardView = self.dashboardView()
         self.setViewControllers([dashboardView], animated: true)
+    }
+    
+    // MARK: -
+    // MARK: About screen functions
+    
+    private func aboutView() -> AboutView {
+        let viewModel = AboutViewModel()
+        let view = AboutView(viewModel: viewModel)
+        
+        viewModel.events.bind { [weak self] in
+            self?.handle(events: $0)
+        }
+        .disposed(by: self.disposeBag)
+        
+        return view
+    }
+    
+    private func handle(events: AboutOutputEvents) {
+        switch events {
+        case .back:
+            self.popViewController(animated: true)
+        }
+    }
+    
+    private func handleAbout() {
+        self.pushViewController(self.aboutView(), animated: false)
     }
 }
