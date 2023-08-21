@@ -151,6 +151,6 @@ final class MainCoordinator: BaseCoordinator {
     }
     
     private func handleAbout() {
-        self.pushViewController(self.aboutView(), animated: false)
+        self.pushViewController(self.aboutView(), animated: true)
     }
 }

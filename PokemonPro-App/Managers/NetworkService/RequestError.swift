@@ -15,8 +15,8 @@ enum RequestError: LocalizedError {
     case invalidURL
     case noResponse
     case unauthorized
-    case unexpectedStatusCode
-    case unknown
+    case unexpectedStatusCode(String)
+    case unknown(String)
     
     var errorDescription: String? {
         switch self {
@@ -28,10 +28,10 @@ enum RequestError: LocalizedError {
             return "<!> There is no response from server"
         case .unauthorized:
             return "<!> Session expired"
-        case .unexpectedStatusCode:
-            return "<!> Unexpected status code"
-        case .unknown:
-            return "<!> Unknown error"
+        case .unexpectedStatusCode(let url):
+            return "<!> Unexpected status code: \(url)"
+        case .unknown(let url):
+            return "<!> Unknown error = \(url)"
         case  .failure(let error):
             return error.localizedDescription
         }

@@ -18,7 +18,7 @@ enum AppFonts: String {
 extension UIFont {
     
     static func paytoneOneRegular(size: CGFloat) -> UIFont {
-        UIFont(name: AppFonts.paytone.rawValue, size: size) ?? UIFont.systemFont(ofSize: size)
+        UIFont(name: AppFonts.paytone.rawValue, size: size) ?? .systemFont(ofSize: size)
     }
     
     static func plusJacartaSans(size: CGFloat) -> UIFont {

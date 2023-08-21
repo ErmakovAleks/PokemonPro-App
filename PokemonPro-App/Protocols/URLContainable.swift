@@ -15,7 +15,7 @@ protocol URLContainable {
     var scheme: String { get }
     var host: String { get }
     var path: String { get }
-    var method: HTTPMethod { get set }
+    var method: HTTPMethod { get }
     var header: [String: String]? { get set }
     var body: [String: Any]? { get set }
 }
@@ -27,6 +27,10 @@ extension URLContainable {
     }
     
     var host: String {
-        "api.themoviedb.org"
+        "pokeapi.glitch.me"
+    }
+    
+    var method: HTTPMethod {
+        .get
     }
 }

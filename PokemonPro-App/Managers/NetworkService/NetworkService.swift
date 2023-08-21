@@ -23,11 +23,37 @@ class NetworkService: NetworkSessionProcessable {
         completion: @escaping ResultCompletion<Data>
     ) {
         guard let request = self.configureRequest(requestModel: requestModel) else { return }
-        self.processTask(request: request, requestModel: requestModel, completion: completion)
+        self.processTask(request: request, completion: completion)
+    }
+    
+    static func sendDataRequest(
+        url: URL,
+        completion: @escaping ResultCompletion<Data>
+    ) {
+        let request = URLRequest(url: url)
+        self.processTask(request: request, completion: completion)
     }
     
     static func sendImageRequest<T>(requestModel: T, completion: @escaping ResultCompletion<UIImage>) where T : URLContainable {
         sendDataRequest(requestModel: requestModel) { result in
+            switch result {
+            case .success(let data):
+                guard let image = UIImage(data: data) else {
+                    completion(.failure(.decode))
+                    return
+                }
+                completion(.success(image))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    static func sendImageRequest(
+        url: URL,
+        completion: @escaping ResultCompletion<UIImage>
+    ) {
+        sendDataRequest(url: url) { result in
             switch result {
             case .success(let data):
                 guard let image = UIImage(data: data) else {
@@ -94,7 +120,7 @@ class NetworkService: NetworkSessionProcessable {
                 case 401:
                     completion(.failure(RequestError.unauthorized))
                 default:
-                    completion(.failure(RequestError.unexpectedStatusCode))
+                    completion(.failure(RequestError.unexpectedStatusCode(request.url?.description ?? "")))
                 }
             }
         }
@@ -102,14 +128,13 @@ class NetworkService: NetworkSessionProcessable {
         task.resume()
     }
     
-    private static func processTask<T: URLContainable>(
+    private static func processTask(
         request: URLRequest,
-        requestModel: T,
         completion: @escaping ResultCompletion<Data>
     ) {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let _ = error {
-                completion(.failure(RequestError.unknown))
+                completion(.failure(RequestError.unknown(request.url?.description ?? "")))
             }
             if let response = response as? HTTPURLResponse {
                 switch response.statusCode {
@@ -120,7 +145,7 @@ class NetworkService: NetworkSessionProcessable {
                 case 401:
                     completion(.failure(RequestError.unauthorized))
                 default:
-                    completion(.failure(RequestError.unexpectedStatusCode))
+                    completion(.failure(RequestError.unexpectedStatusCode(request.url?.description ?? "")))
                 }
             }
         }
