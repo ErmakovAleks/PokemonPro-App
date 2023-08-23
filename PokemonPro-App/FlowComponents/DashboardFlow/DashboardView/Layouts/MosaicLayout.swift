@@ -52,7 +52,7 @@ class MosaicLayout: UICollectionViewLayout, ItemHeightDelegateContainable {
     // MARK: Functions
     
     override func prepare() {
-        guard cache.isEmpty == true, let collectionView = collectionView else { return }
+        guard let collectionView = collectionView else { return }
         let columnWidth = (self.contentWidth - 23.0) / CGFloat(self.numberOfColumns)
         var xOffset = [CGFloat]()
         

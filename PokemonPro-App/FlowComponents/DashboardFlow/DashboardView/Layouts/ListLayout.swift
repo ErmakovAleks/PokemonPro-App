@@ -52,7 +52,7 @@ class ListLayout: UICollectionViewLayout, ItemHeightDelegateContainable {
     // MARK: Functions
     
     override func prepare() {
-        guard cache.isEmpty == true, let collectionView = collectionView else { return }
+        guard let collectionView = collectionView else { return }
         let columnWidth = (contentWidth - 2 * self.cellPadding) / CGFloat(self.numberOfColumns)
         var xOffset = [CGFloat]()
         

@@ -26,15 +26,38 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     private let searchBarContainerView = UIView()
     private let titleLabel = UILabel()
     private let searchBar = UISearchBar()
+    private let refreshControl: UIRefreshControl = {
+        let refresh = UIRefreshControl()
+        refresh.addTarget(
+            DashboardView.self,
+            action: #selector(refreshCollection(sender:)),
+            for: .valueChanged
+        )
+        
+        return refresh
+    }()
+    
     private var collectionView: UICollectionView?
     private var collectionLayout: ItemHeightDelegateContainable?
+    private var layoutMode: RepresentMode = .list
     
     // MARK: -
     // MARK: Overrided functions
     
     override func prepareBindings(disposeBag: DisposeBag) {
         self.viewModel.items.bind { [weak self] _ in
-            self?.collectionView?.reloadData()
+            var indexPaths = [IndexPath]()
+            if self?.viewModel.itemsPreviousCount != self?.viewModel.items.value.count {
+                indexPaths = Array(
+                    (self?.viewModel.itemsPreviousCount ?? 0)...((self?.viewModel.items.value.count ?? 0) - 1))
+                .map {
+                    return IndexPath(item: $0, section: 0)
+                }
+            }
+
+            self?.collectionView?.performBatchUpdates {
+                self?.collectionView?.insertItems(at: indexPaths)
+            }
         }
         .disposed(by: disposeBag)
     }
@@ -104,7 +127,7 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     // MARK: Collection Layout
     
     private func collectionSetup() {
-        self.collectionLayout = ListLayout(cellPadding: 16.0)
+        self.collectionLayout = self.layoutMode.currentLayout
         self.collectionLayout?.delegate = self
         
         self.collectionView = UICollectionView(
@@ -114,6 +137,7 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
         
         self.collectionView?.delegate = self
         self.collectionView?.dataSource = self
+        self.collectionView?.refreshControl = self.refreshControl
         
         self.collectionView?.register(PokemonCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: PokemonCollectionViewCell.self))
         self.collectionView?.backgroundColor = .wildSand
@@ -131,18 +155,16 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
         guard let cells = self.collectionView?
             .visibleCells as? [PokemonCollectionViewCell] else { return }
         
-        var layoutMode: RepresentMode
-        
-        if self.collectionLayout is ListLayout {
+        switch self.layoutMode {
+        case .list:
             self.navigationItem.rightBarButtonItem?.image = UIImage(named: "tableRepresentIcon")
-            self.collectionLayout = MosaicLayout(cellPadding: 9.0)
-            layoutMode = .mosaic
-        } else {
+            self.layoutMode = .mosaic
+        case .mosaic:
             self.navigationItem.rightBarButtonItem?.image = UIImage(named: "collectionRepresentIcon")
-            self.collectionLayout = ListLayout(cellPadding: 16.0)
-            layoutMode = .list
+            self.layoutMode = .list
         }
-        
+
+        self.collectionLayout = self.layoutMode.currentLayout
         self.collectionLayout?.delegate = self
         self.collectionView?.setCollectionViewLayout(
             self.collectionLayout ?? UICollectionViewLayout(),
@@ -153,6 +175,12 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
             $0.switchMode(to: layoutMode)
             $0.contentView.layoutIfNeeded()
         }
+    }
+    
+    @objc private func refreshCollection(sender: UIRefreshControl) {
+        self.viewModel.items.accept([])
+        self.viewModel.viewDidLoaded()
+        self.refreshControl.endRefreshing()
     }
     
     // MARK: -
@@ -333,10 +361,9 @@ extension DashboardView: UISearchBarDelegate {
     }
 }
 
-extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource {
+extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, UIScrollViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
         return self.viewModel.items.value.count
     }
     
@@ -356,6 +383,13 @@ extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource {
         
         return cell
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if (((scrollView.contentOffset.y + scrollView.frame.size.height) > scrollView.contentSize.height ) && !self.viewModel.isLoadingList){
+            self.viewModel.isLoadingList = true
+            self.viewModel.getPokemons(offset: self.viewModel.offset)
+        }
+    }
 }
 
 extension DashboardView: MosaicLayoutDelegate {
@@ -365,13 +399,15 @@ extension DashboardView: MosaicLayoutDelegate {
             text: self.viewModel.items.value[indexPath.item].name,
             cellWidth: itemWidth - (self.collectionLayout is ListLayout ? 16.0 * 3.0 + 95.0 : 9.0 + 16.0)
         )
-        
+
         if self.collectionLayout is ListLayout {
-            height += CGFloat(2 * 12 + 23 + 15 + 2 * 16)
+            //height += CGFloat(2 * 12 + 23 + 15 + 2 * 16)
+            height += 94.0
         } else {
-            height += CGFloat(8 + 15 + 95 + 4 + 12 + 23 + 16)
+            //height += CGFloat(8 + 15 + 95 + 4 + 12 + 23 + 16)
+            height += 173.0
         }
-        
+
         return height
     }
 }

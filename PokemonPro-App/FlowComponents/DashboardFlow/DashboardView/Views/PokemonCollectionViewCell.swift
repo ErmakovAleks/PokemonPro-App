@@ -13,6 +13,15 @@ enum RepresentMode {
     
     case list
     case mosaic
+    
+    var currentLayout: ItemHeightDelegateContainable {
+        switch self {
+        case .list:
+            return ListLayout(cellPadding: 16.0)
+        case .mosaic:
+            return MosaicLayout(cellPadding: 9.0)
+        }
+    }
 }
 
 class PokemonCollectionViewCell: UICollectionViewCell {

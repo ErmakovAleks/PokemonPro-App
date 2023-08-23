@@ -21,22 +21,19 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
     // MARK: Variables
     
     var items = BehaviorRelay<[PokemonCollectionItem]>(value: [])
-    /** **  */
-    var testItems = BehaviorRelay<[Int]>(value: [])
-    /** **  */
+    var itemsPreviousCount: Int = 0
+    var isLoadingList: Bool = false
+    var offset: Int = 0
+
     private var pokemons = [Pokemon]()
     private var pokemonDetails = BehaviorRelay<[PokemonDetail]>(value: [])
     private var group = DispatchGroup()
-    
+
     // MARK: -
     // MARK: Overrided functions
     
     override func viewDidLoaded() {
         self.getPokemons()
-        let array = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230]
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.testItems.accept(array)
-        }
     }
     
     override func prepareBindings(bag: DisposeBag) {
@@ -54,21 +51,24 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
     }
     
     // MARK: -
-    // MARK: Private functions
+    // MARK: Internal functions
     
-    private func getPokemons() {
-        let params = PokemonsParams()
+    func getPokemons(limit: Int = 6, offset: Int = 0) {
+        let params = PokemonsParams(limit: limit, offset: offset)
         Service.sendRequest(requestModel: params) { [weak self] result in
             switch result {
             case .success(let model):
                 guard let pokemons = model.results else { return }
-                self?.pokemons += pokemons
+                self?.pokemons = pokemons
                 self?.getPokemonsDetails(pokemons: pokemons)
             case .failure(let error):
                 print(error.errorDescription ?? "<!> Network Error!")
             }
         }
     }
+    
+    // MARK: -
+    // MARK: Private functions
     
     private func getPokemonsDetails(pokemons: [Pokemon]) {
         var details = [PokemonDetail]()
@@ -110,31 +110,47 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
     
     private func getImages(pokemonDetails: [PokemonDetail]) {
         guard !pokemonDetails.isEmpty else { return }
+        
         var items = [PokemonCollectionItem]()
         pokemonDetails.forEach {
             self.getOneImage(pokemonDetail: $0) {
-                items.append($0)
+                switch $0 {
+                case .success(let model):
+                    items.append(model)
+                case .failure(_):
+                    break
+                }
             }
         }
         
         self.group.notify(queue: .main) {
             items = items.sorted { $0.number < $1.number }
-            items.insert(PokemonCollectionItem.startItem(), at: 0)
-            self.items.accept(items)
+            self.offset += items.count
+    
+            if self.items.value.isEmpty {
+                items.insert(PokemonCollectionItem.startItem(), at: 0)
+            }
+            
+            if !items.isEmpty {
+                self.itemsPreviousCount = self.items.value.count
+                self.items.accept(self.items.value + items)
+                self.isLoadingList = false
+            }
         }
     }
     
     private func getOneImage(
         pokemonDetail: PokemonDetail,
-        completion: @escaping (PokemonCollectionItem) -> ()
+        completion: @escaping (ResultCompletion<PokemonCollectionItem>)
     ) {
         self.group.enter()
         Service.sendImageRequest(url: pokemonDetail.sprite) { result in
             switch result {
             case .success(let image):
                 var item = PokemonCollectionItem.convert(pokemonDetail: pokemonDetail, image: image)
-                completion(item)
+                completion(.success(item))
             case .failure(let error):
+                completion(.failure(error))
                 print(error.errorDescription ?? "<!> Network Error!")
             }
             
