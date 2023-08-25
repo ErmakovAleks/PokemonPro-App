@@ -23,9 +23,7 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     // MARK: Variables
     
     private let titleContainerView = UIView()
-    private let searchBarContainerView = UIView()
     private let titleLabel = UILabel()
-    private let searchBar = UISearchBar()
     private let refreshControl: UIRefreshControl = {
         let refresh = UIRefreshControl()
         refresh.addTarget(
@@ -65,21 +63,14 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     override func setup() {
         self.navigationBarSetup()
         self.navigationItemSetup()
-        self.containersSetup()
-        self.customNavigationBarSearchBarSetup()
         self.collectionSetup()
     }
     
     override func style() {
         self.view.backgroundColor = .wildSand
-        self.customNavigationBarTitleStyle()
-        self.customNavigationBarSearchBarStyle()
     }
     
     override func layout() {
-        self.containersLayout()
-        self.customNavigationBarTitleLayout()
-        self.customNavigationBarSearchBarLayout()
         self.collectionViewLayout()
     }
     
@@ -89,6 +80,12 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     private func navigationBarSetup() {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.navigationBar.tintColor = .abbey
+        self.navigationController?.navigationBar.prefersLargeTitles = !(self.navigationItem.searchController?.isActive ?? false)
+        self.navigationController?.navigationBar.largeTitleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.plusJacartaSans(size: 34.0),
+            NSAttributedString.Key.foregroundColor: UIColor.abbey
+        ]
+        
         self.navigationController?.navigationBar.titleTextAttributes = [
             NSAttributedString.Key.font: UIFont.plusJacartaSans(size: 24.0),
             NSAttributedString.Key.foregroundColor: UIColor.abbey
@@ -97,6 +94,34 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     
     private func navigationItemSetup() {
         self.navigationItem.title = "All pokemon"
+        
+        let searchController = UISearchController()
+        searchController.searchBar.searchTextField.layer.cornerRadius = 18.0
+        searchController.searchBar.searchTextField.layer.masksToBounds = true
+        searchController.searchBar.placeholder = "Name or number..."
+        searchController.searchBar.barTintColor = .wildSand
+        searchController.searchBar.searchBarStyle = .minimal
+        searchController.searchBar.backgroundColor = .wildSand
+        searchController.searchBar.tintColor = .abbey
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchBar.delegate = self
+        
+        self.navigationItem.searchController = searchController
+        self.navigationController?.navigationBar.prefersLargeTitles = !searchController.isActive
+        
+        if let cancelButton = searchController.searchBar.value(forKey: "cancelButton") as? UIButton {
+            let attributedString = NSAttributedString(
+                string: "Cancel",
+                attributes: [
+                    .foregroundColor: UIColor.abbey,
+                    .font: UIFont.plusJacartaSans(size: 15.0)
+                ]
+            )
+            
+            cancelButton.setTitleColor(.abbey, for: .normal)
+            cancelButton.setAttributedTitle(attributedString, for: .normal)
+        }
+        
         let leftItem = UIBarButtonItem(
             image: UIImage(named: "logo24")?.withRenderingMode(.alwaysOriginal),
             style: .plain,
@@ -146,7 +171,7 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     
     private func collectionViewLayout() {
         self.collectionView?.snp.makeConstraints {
-            $0.top.equalTo(self.searchBar.snp.bottom)
+            $0.top.equalTo(self.view.safeAreaLayoutGuide)
             $0.horizontalEdges.bottom.equalToSuperview()
         }
     }
@@ -184,132 +209,6 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     }
     
     // MARK: -
-    // MARK: Containers preparing
-    
-    private func containersSetup() {
-        self.view.addSubview(self.titleContainerView)
-        self.titleContainerView.addSubview(self.titleLabel)
-        
-        self.view.addSubview(self.searchBarContainerView)
-        self.searchBarContainerView.addSubview(self.searchBar)
-    }
-    
-    private func containersLayout() {
-        self.titleContainerView.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(68.0)
-        }
-        
-        self.searchBarContainerView.snp.makeConstraints {
-            $0.top.equalTo(self.titleContainerView.snp.bottom)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(40.0)
-        }
-    }
-    
-    // MARK: -
-    // MARK: Custom NavigationBar Title preparing
-    
-    private func customNavigationBarTitleStyle() {
-        self.titleLabel.text = "All pokemon"
-        self.titleLabel.font = .plusJacartaSans(size: 34.0)
-        self.titleLabel.textColor = .abbey
-        self.titleLabel.sizeToFit()
-    }
-    
-    private func customNavigationBarTitleLayout() {
-        self.titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(20.0)
-            $0.leading.equalToSuperview().inset(30.0)
-        }
-    }
-    
-    // MARK: -
-    // MARK: Custom NavigationBar SearchBar preparing
-    
-    private func customNavigationBarSearchBarSetup() {
-        self.searchBar.delegate = self
-    }
-    
-    private func customNavigationBarSearchBarStyle() {
-        self.searchBar.searchTextField.layer.cornerRadius = 18.0
-        self.searchBar.searchTextField.layer.masksToBounds = true
-        self.searchBar.placeholder = "Name or number..."
-        self.searchBar.barTintColor = .wildSand
-        self.searchBar.searchBarStyle = .minimal
-        self.searchBar.backgroundColor = .wildSand
-        self.searchBar.tintColor = .abbey
-        
-        if let cancelButton = self.searchBar.value(forKey: "cancelButton") as? UIButton {
-            let attributedString = NSAttributedString(
-                string: "Cancel",
-                attributes: [
-                    .foregroundColor: UIColor.abbey,
-                    .font: UIFont.plusJacartaSans(size: 15.0)
-                ]
-            )
-            
-            cancelButton.setTitleColor(.abbey, for: .normal)
-            cancelButton.setAttributedTitle(attributedString, for: .normal)
-        }
-    }
-    
-    private func customNavigationBarSearchBarLayout() {
-        self.searchBar.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-    }
-    
-    private func showCustomNavigationBar() {
-        UIView.animate(withDuration: Constants.animationTime) {
-            self.titleLabel.alpha = 1.0
-            self.titleContainerView.snp.remakeConstraints {
-                $0.top.equalTo(self.view.safeAreaLayoutGuide)
-                $0.horizontalEdges.equalToSuperview()
-                $0.height.equalTo(68.0)
-            }
-            
-            self.titleLabel.snp.remakeConstraints {
-                $0.top.equalToSuperview().inset(20.0)
-                $0.leading.equalToSuperview().inset(30.0)
-            }
-            
-            self.searchBarContainerView.snp.remakeConstraints {
-                $0.top.equalTo(self.titleContainerView.snp.bottom)
-                $0.horizontalEdges.equalToSuperview()
-                $0.height.equalTo(40.0)
-            }
-            
-            self.view.layoutIfNeeded()
-        }
-    }
-    
-    private func hideCustomNavigationBar() {
-        UIView.animate(withDuration: Constants.alphaAnimationTime) {
-            self.titleLabel.alpha = 0.0
-        }
-        
-        UIView.animate(withDuration: Constants.animationTime) {
-            self.titleContainerView.snp.remakeConstraints {
-                $0.height.equalTo(0.0)
-            }
-            
-            self.titleLabel.snp.makeConstraints {
-                $0.height.equalTo(0.0)
-            }
-            
-            self.searchBarContainerView.snp.remakeConstraints {
-                $0.top.equalTo(self.view.safeAreaLayoutGuide)
-                $0.horizontalEdges.equalToSuperview()
-                $0.height.equalTo(40.0)
-            }
-            
-            self.view.layoutIfNeeded()
-        }
-    }
-    
-    // MARK: -
     // MARK: Private functions
     
     private func requiredTextHeight(text: String , cellWidth : CGFloat) -> CGFloat {
@@ -336,28 +235,29 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
 extension DashboardView: UISearchBarDelegate {
 
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        self.searchBar.setShowsCancelButton(true, animated: true)
-        self.hideCustomNavigationBar()
+        searchBar.setShowsCancelButton(true, animated: true)
+        self.navigationController?.navigationBar.prefersLargeTitles = false
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        self.searchBar.setShowsCancelButton(false, animated: true)
+        searchBar.setShowsCancelButton(false, animated: true)
+        self.navigationController?.navigationBar.prefersLargeTitles = true
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.searchBar.setShowsCancelButton(true, animated: true)
+        searchBar.setShowsCancelButton(true, animated: true)
         if !searchText.isEmpty {
-            self.searchBar.searchTextField.layer.borderWidth = 2.0
-            self.searchBar.searchTextField.layer.borderColor = UIColor.gold.cgColor
+            searchBar.searchTextField.layer.borderWidth = 2.0
+            searchBar.searchTextField.layer.borderColor = UIColor.gold.cgColor
         } else {
-            self.searchBar.searchTextField.layer.borderWidth = 0.0
+            searchBar.searchTextField.layer.borderWidth = 0.0
         }
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        self.searchBar.setShowsCancelButton(false, animated: true)
-        self.showCustomNavigationBar()
-        self.searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
+        self.navigationController?.navigationBar.prefersLargeTitles = true
+        searchBar.resignFirstResponder()
     }
 }
 
