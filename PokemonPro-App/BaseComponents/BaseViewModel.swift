@@ -11,6 +11,12 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+public enum SpinnerAction {
+    
+    case start
+    case stop
+}
+
 public class BaseViewModel<OutputEventsType: Events>: NetworkServiceContainable {
     
     //MARK: -
@@ -21,6 +27,8 @@ public class BaseViewModel<OutputEventsType: Events>: NetworkServiceContainable 
     }
     
     public let disposeBag = DisposeBag()
+    
+    internal var spinnerHandler: ((SpinnerAction) -> ())?
     
     internal let outputEventsEmiter = PublishRelay<OutputEventsType>()
     

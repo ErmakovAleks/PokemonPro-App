@@ -21,11 +21,11 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
     // MARK: Variables
     
     var items = BehaviorRelay<[PokemonCollectionItem]>(value: [])
-    var itemsPreviousCount: Int = 0
     var isLoadingList: Bool = false
     var offset: Int = 0
 
-    private var pokemons = [Pokemon]()
+    private var onePagePokemons = [Pokemon]()
+    private var allPokemons = [Pokemon]()
     private var pokemonDetails = BehaviorRelay<[PokemonDetail]>(value: [])
     private var group = DispatchGroup()
 
@@ -34,6 +34,7 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
     
     override func viewDidLoaded() {
         self.getPokemons()
+        self.getAllPokemonNames()
     }
     
     override func prepareBindings(bag: DisposeBag) {
@@ -53,13 +54,27 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
     // MARK: -
     // MARK: Internal functions
     
-    func getPokemons(limit: Int = 6, offset: Int = 0) {
-        let params = PokemonsParams(limit: limit, offset: offset)
+    func getNextPage() {
+        self.getPokemons(offset: self.offset)
+    }
+    
+    func searchOf(text: String) {
+        let searchedPokemons = self.allPokemons.filter { $0.name.contains(text.lowercased()) }
+        self.items.accept([])
+        self.getPokemonsDetails(pokemons: searchedPokemons)
+    }
+    
+    // MARK: -
+    // MARK: Private functions
+    
+    private func getPokemons(offset: Int = 0) {
+        self.spinnerHandler?(.start)
+        let params = PokemonsParams(offset: offset)
         Service.sendRequest(requestModel: params) { [weak self] result in
             switch result {
             case .success(let model):
                 guard let pokemons = model.results else { return }
-                self?.pokemons = pokemons
+                self?.onePagePokemons = pokemons
                 self?.getPokemonsDetails(pokemons: pokemons)
             case .failure(let error):
                 print(error.errorDescription ?? "<!> Network Error!")
@@ -67,8 +82,21 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
         }
     }
     
-    // MARK: -
-    // MARK: Private functions
+    private func getAllPokemonNames() {
+        let params = PokemonsParams(offset: self.allPokemons.count)
+        Service.sendRequest(requestModel: params) { [weak self] result in
+            switch result {
+            case .success(let model):
+                guard let pokemons = model.results else { return }
+                self?.allPokemons += pokemons
+                if model.next != nil {
+                    self?.getAllPokemonNames()
+                }
+            case .failure(let error):
+                print(error.errorDescription ?? "<!> Network Error!")
+            }
+        }
+    }
     
     private func getPokemonsDetails(pokemons: [Pokemon]) {
         var details = [PokemonDetail]()
@@ -81,7 +109,7 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
         self.group.notify(queue: .main) {
             let filteredDetails = details
                 .filter { pokemonDetail in
-                    self.pokemons.contains { pokemon in
+                    self.onePagePokemons.contains { pokemon in
                         pokemon.name == pokemonDetail.name.lowercased()
                     }
                 }
@@ -126,15 +154,11 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
         self.group.notify(queue: .main) {
             items = items.sorted { $0.number < $1.number }
             self.offset += items.count
-    
-            if self.items.value.isEmpty {
-                items.insert(PokemonCollectionItem.startItem(), at: 0)
-            }
             
             if !items.isEmpty {
-                self.itemsPreviousCount = self.items.value.count
                 self.items.accept(self.items.value + items)
                 self.isLoadingList = false
+                self.spinnerHandler?(.stop)
             }
         }
     }
@@ -147,7 +171,7 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
         Service.sendImageRequest(url: pokemonDetail.sprite) { result in
             switch result {
             case .success(let image):
-                var item = PokemonCollectionItem.convert(pokemonDetail: pokemonDetail, image: image)
+                let item = PokemonCollectionItem.convert(pokemonDetail: pokemonDetail, image: image)
                 completion(.success(item))
             case .failure(let error):
                 completion(.failure(error))

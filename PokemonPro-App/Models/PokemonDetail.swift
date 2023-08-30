@@ -26,7 +26,6 @@ struct PokemonDetail: Codable {
     let number: String
     let name: String
     let types: [PokeType]
-    //let types: [String]
     let abilities: Abilities
     let height: String
     let weight: String

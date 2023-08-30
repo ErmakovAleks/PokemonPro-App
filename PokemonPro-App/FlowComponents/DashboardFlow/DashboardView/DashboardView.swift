@@ -15,6 +15,7 @@ fileprivate extension Constants {
 import UIKit
 import SnapKit
 import RxSwift
+import RxCocoa
 
 
 final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
@@ -38,26 +39,65 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     private var collectionView: UICollectionView?
     private var collectionLayout: ItemHeightDelegateContainable?
     private var layoutMode: RepresentMode = .list
+    private var downloadedPokemons = [PokemonCollectionItem]()
+    private var pokemonsToShow = BehaviorRelay<[PokemonCollectionItem]>(value: [])
+    private var startIndex = 0
     
     // MARK: -
     // MARK: Overrided functions
     
     override func prepareBindings(disposeBag: DisposeBag) {
-        self.viewModel.items.bind { [weak self] _ in
-            var indexPaths = [IndexPath]()
-            if self?.viewModel.itemsPreviousCount != self?.viewModel.items.value.count {
-                indexPaths = Array(
-                    (self?.viewModel.itemsPreviousCount ?? 0)...((self?.viewModel.items.value.count ?? 0) - 1))
-                .map {
-                    return IndexPath(item: $0, section: 0)
+        self.viewModel.items.bind { [weak self] in
+            guard let self else { return }
+            if !$0.isEmpty {
+                if let text = self.navigationItem.searchController?.searchBar.text, text.isEmpty {
+                    self.startIndex = self.pokemonsToShow.value.count
+                    var pokemons = [PokemonCollectionItem.startItem()]
+                    pokemons += $0
+                    self.downloadedPokemons = pokemons
+                    self.pokemonsToShow.accept(pokemons)
+                } else {
+                    self.pokemonsToShow.accept($0)
                 }
-            }
-
-            self?.collectionView?.performBatchUpdates {
-                self?.collectionView?.insertItems(at: indexPaths)
             }
         }
         .disposed(by: disposeBag)
+        
+        self.pokemonsToShow.bind { [weak self] in
+            guard
+                let self,
+                let text = self.navigationItem.searchController?.searchBar.text
+            else { return }
+            
+            if text.isEmpty {
+                var indexPaths = [IndexPath]()
+                if $0.count > self.startIndex {
+                    indexPaths = Array(self.startIndex...($0.count - 1))
+                        .map { return IndexPath(item: $0, section: 0) }
+                    
+                    self.collectionView?.performBatchUpdates {
+                        self.collectionView?.insertItems(at: indexPaths)
+                    }
+                }
+            } else {
+                self.collectionView?.reloadData()
+            }
+        }
+        .disposed(by: disposeBag)
+        
+        self.navigationItem.searchController?
+            .searchBar.rx.text.debounce(.seconds(1), scheduler: MainScheduler.asyncInstance)
+            .bind { [weak self] text in
+                guard let text else { return }
+                if !text.isEmpty {
+                    self?.viewModel.searchOf(text: text)
+                } else {
+                    self?.startIndex = 0
+                    self?.viewModel.items.accept([])
+                    self?.viewModel.items.accept(Array(self?.downloadedPokemons.dropFirst() ?? []))
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     override func setup() {
@@ -203,7 +243,8 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
     }
     
     @objc private func refreshCollection(sender: UIRefreshControl) {
-        self.viewModel.items.accept([])
+        self.startIndex = 0
+        self.pokemonsToShow.accept([])
         self.viewModel.viewDidLoaded()
         self.refreshControl.endRefreshing()
     }
@@ -264,7 +305,7 @@ extension DashboardView: UISearchBarDelegate {
 extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, UIScrollViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.viewModel.items.value.count
+        return self.pokemonsToShow.value.count // return self.viewModel.items.value.count + 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -272,8 +313,11 @@ extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, U
             withReuseIdentifier: String(describing: PokemonCollectionViewCell.self),
             for: indexPath
         ) as? PokemonCollectionViewCell else { return UICollectionViewCell() }
-        
-        cell.configure(with: self.viewModel.items.value[indexPath.item], index: indexPath.item)
+//        let model = indexPath.item == 0
+//            ? PokemonCollectionItem.startItem()
+//            : self.viewModel.items.value[indexPath.item - 1]
+        let model = self.pokemonsToShow.value[indexPath.item]  // model выше
+        cell.configure(with: model, index: indexPath.item)
         
         if self.collectionLayout is ListLayout {
             cell.switchMode(to: .list)
@@ -285,9 +329,11 @@ extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, U
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if (((scrollView.contentOffset.y + scrollView.frame.size.height) > scrollView.contentSize.height ) && !self.viewModel.isLoadingList){
+        if (((scrollView.contentOffset.y + scrollView.frame.size.height) > scrollView.contentSize.height)
+            && scrollView.contentSize.height != 0
+            && !self.viewModel.isLoadingList) {
             self.viewModel.isLoadingList = true
-            self.viewModel.getPokemons(offset: self.viewModel.offset)
+            self.viewModel.getNextPage()
         }
     }
 }
@@ -295,8 +341,12 @@ extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, U
 extension DashboardView: MosaicLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, heightForItemAtIndexPath indexPath: IndexPath, itemWidth: CGFloat) -> CGFloat {
+//        let model = indexPath.item == 0
+//            ? PokemonCollectionItem.startItem()
+//            : self.viewModel.items.value[indexPath.item - 1]
+        let model = self.pokemonsToShow.value[indexPath.item]  // model выше
         var height = self.requiredTextHeight(
-            text: self.viewModel.items.value[indexPath.item].name,
+            text: model.name,
             cellWidth: itemWidth - (self.collectionLayout is ListLayout ? 16.0 * 3.0 + 95.0 : 9.0 + 16.0)
         )
 
