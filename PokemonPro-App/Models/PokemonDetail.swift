@@ -32,6 +32,8 @@ struct PokemonDetail: Codable {
     let family: Family
     let sprite: URL
     let description: String
+    
+    var detailURL: URL?
 }
 
 // MARK: -
@@ -213,6 +215,7 @@ struct PokemonCollectionItem {
     let evolutionLine: [String]
     let image: UIImage
     let description: String
+    let detailURL: URL?
     
     static func convert(pokemonDetail: PokemonDetail, image: UIImage) -> Self {
         return PokemonCollectionItem(
@@ -224,7 +227,8 @@ struct PokemonCollectionItem {
             weight: Self.convert(weight: pokemonDetail.weight),
             evolutionLine: pokemonDetail.family.evolutionLine,
             image: image,
-            description: pokemonDetail.description
+            description: pokemonDetail.description,
+            detailURL: pokemonDetail.detailURL
         )
     }
     
@@ -238,14 +242,14 @@ struct PokemonCollectionItem {
             weight: 0,
             evolutionLine: [],
             image: UIImage(named: "whatPokemon") ?? UIImage(),
-            description: ""
+            description: "",
+            detailURL: nil
         )
     }
     
     private static func convert(height: String) -> Int {
         var hgt = height.replacingOccurrences(of: "'", with: ".")
-        hgt.removeAll { $0 == "\\" }
-        
+        hgt.removeAll { $0 == "\"" }
         return Int(((Double(hgt) ?? 0.0) * 2.54).rounded())
     }
     

@@ -17,7 +17,7 @@ struct PokemonsParams: URLContainable {
     var header: [String : String]?
     var body: [String : Any]?
     
-    init(limit: Int = 20, offset: Int = 0) {
+    init(limit: Int = 6, offset: Int = 0) {
         self.header =
         [
             "limit" : "\(limit)",

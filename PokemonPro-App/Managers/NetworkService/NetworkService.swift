@@ -34,6 +34,15 @@ class NetworkService: NetworkSessionProcessable {
         self.processTask(request: request, completion: completion)
     }
     
+    static func sendRequest<T: Decodable>(
+        url: URL,
+        decodableType: T.Type,
+        completion: @escaping ResultCompletion<T>
+    ) {
+        let request = URLRequest(url: url)
+        self.processTask(request: request, completion: completion)
+    }
+    
     static func sendImageRequest<T>(requestModel: T, completion: @escaping ResultCompletion<UIImage>) where T : URLContainable {
         sendDataRequest(requestModel: requestModel) { result in
             switch result {
@@ -113,6 +122,35 @@ class NetworkService: NetworkSessionProcessable {
                 case 200..<300:
                     if let data = data,
                        let results = try? JSONDecoder().decode(T.DecodableType.self , from: data) {
+                        completion(.success(results))
+                    } else {
+                        completion(.failure(RequestError.decode))
+                    }
+                case 401:
+                    completion(.failure(RequestError.unauthorized))
+                default:
+                    completion(.failure(RequestError.unexpectedStatusCode(request.url?.description ?? "")))
+                }
+            }
+        }
+        
+        task.resume()
+    }
+    
+    private static func processTask<T: Decodable>(
+        request: URLRequest,
+        completion: @escaping ResultCompletion<T>
+    ) {
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error {
+                completion(.failure(RequestError.failure(error)))
+            }
+            
+            if let response = response as? HTTPURLResponse {
+                switch response.statusCode {
+                case 200..<300:
+                    if let data = data,
+                       let results = try? JSONDecoder().decode(T.self , from: data) {
                         completion(.success(results))
                     } else {
                         completion(.failure(RequestError.decode))

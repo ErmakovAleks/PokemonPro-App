@@ -13,6 +13,7 @@ import RxRelay
 enum DashboardOutputEvents: Events {
     
     case about
+    case detail(PokemonCollectionItem)
 }
 
 final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
@@ -24,7 +25,6 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
     var isLoadingList: Bool = false
     var offset: Int = 0
 
-    private var onePagePokemons = [Pokemon]()
     private var allPokemons = [Pokemon]()
     private var pokemonDetails = BehaviorRelay<[PokemonDetail]>(value: [])
     private var group = DispatchGroup()
@@ -64,6 +64,10 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
         self.getPokemonsDetails(pokemons: searchedPokemons)
     }
     
+    func showDetailFor(item: PokemonCollectionItem) {
+        self.outputEventsEmiter.accept(.detail(item))
+    }
+    
     // MARK: -
     // MARK: Private functions
     
@@ -74,7 +78,6 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
             switch result {
             case .success(let model):
                 guard let pokemons = model.results else { return }
-                self?.onePagePokemons = pokemons
                 self?.getPokemonsDetails(pokemons: pokemons)
             case .failure(let error):
                 print(error.errorDescription ?? "<!> Network Error!")
@@ -102,14 +105,21 @@ final class DashboardViewModel: BaseViewModel<DashboardOutputEvents> {
         var details = [PokemonDetail]()
         pokemons.forEach { [weak self] pokemon in
             self?.getOnePokemonDetail(name: pokemon.name) { detail in
-                details += detail
+                let fullModels = detail.map {
+                    var model = $0
+                    model.detailURL = pokemon.url
+                    
+                    return model
+                }
+                
+                details += fullModels
             }
         }
 
         self.group.notify(queue: .main) {
             let filteredDetails = details
                 .filter { pokemonDetail in
-                    self.onePagePokemons.contains { pokemon in
+                    pokemons.contains { pokemon in
                         pokemon.name == pokemonDetail.name.lowercased()
                     }
                 }

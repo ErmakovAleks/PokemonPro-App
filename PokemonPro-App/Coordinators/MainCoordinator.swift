@@ -120,6 +120,8 @@ final class MainCoordinator: BaseCoordinator {
         switch events {
         case .about:
             self.handleAbout()
+        case .detail(let item):
+            self.handleDetail(item: item)
         }
     }
     
@@ -152,5 +154,31 @@ final class MainCoordinator: BaseCoordinator {
     
     private func handleAbout() {
         self.pushViewController(self.aboutView(), animated: true)
+    }
+    
+    // MARK: -
+    // MARK: Detail screen functions
+    
+    private func detailView(item: PokemonCollectionItem) -> DetailView {
+        let viewModel = DetailViewModel()
+        let view = DetailView(item: item, viewModel: viewModel)
+        
+        viewModel.events.bind {
+            self.handle(events: $0)
+        }
+        .disposed(by: self.disposeBag)
+        
+        return view
+    }
+    
+    private func handle(events: DetailOutputEvents) {
+        switch events {
+        case .back:
+            self.popViewController(animated: true)
+        }
+    }
+    
+    private func handleDetail(item: PokemonCollectionItem) {
+        self.pushViewController(self.detailView(item: item), animated: true)
     }
 }

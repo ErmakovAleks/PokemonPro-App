@@ -93,8 +93,10 @@ final class DashboardView: BaseView<DashboardViewModel, DashboardOutputEvents> {
                     self?.viewModel.searchOf(text: text)
                 } else {
                     self?.startIndex = 0
+                    self?.viewModel.offset = 0
                     self?.viewModel.items.accept([])
-                    self?.viewModel.items.accept(Array(self?.downloadedPokemons.dropFirst() ?? []))
+                    self?.viewModel.getNextPage()
+                    //self?.viewModel.items.accept(Array(self?.downloadedPokemons.dropFirst() ?? []))
                 }
             }
             .disposed(by: disposeBag)
@@ -305,7 +307,7 @@ extension DashboardView: UISearchBarDelegate {
 extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, UIScrollViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.pokemonsToShow.value.count // return self.viewModel.items.value.count + 1
+        return self.pokemonsToShow.value.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -313,10 +315,7 @@ extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, U
             withReuseIdentifier: String(describing: PokemonCollectionViewCell.self),
             for: indexPath
         ) as? PokemonCollectionViewCell else { return UICollectionViewCell() }
-//        let model = indexPath.item == 0
-//            ? PokemonCollectionItem.startItem()
-//            : self.viewModel.items.value[indexPath.item - 1]
-        let model = self.pokemonsToShow.value[indexPath.item]  // model выше
+        let model = self.pokemonsToShow.value[indexPath.item]
         cell.configure(with: model, index: indexPath.item)
         
         if self.collectionLayout is ListLayout {
@@ -326,6 +325,10 @@ extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, U
         }
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.viewModel.showDetailFor(item: self.pokemonsToShow.value[indexPath.item])
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -341,10 +344,7 @@ extension DashboardView: UICollectionViewDelegate, UICollectionViewDataSource, U
 extension DashboardView: MosaicLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, heightForItemAtIndexPath indexPath: IndexPath, itemWidth: CGFloat) -> CGFloat {
-//        let model = indexPath.item == 0
-//            ? PokemonCollectionItem.startItem()
-//            : self.viewModel.items.value[indexPath.item - 1]
-        let model = self.pokemonsToShow.value[indexPath.item]  // model выше
+        let model = self.pokemonsToShow.value[indexPath.item]
         var height = self.requiredTextHeight(
             text: model.name,
             cellWidth: itemWidth - (self.collectionLayout is ListLayout ? 16.0 * 3.0 + 95.0 : 9.0 + 16.0)
